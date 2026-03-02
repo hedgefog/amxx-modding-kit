@@ -153,7 +153,7 @@ native Float:PlayerMusic_Player_GetTrackStartTime(const pPlayer);
  * @param bLoop       Whether to loop the track.
  * @param flStartTime The start time of the track.
  */
-forward PlayerMusic_OnTrackScheduled(const pPlayer, const PlayerMusic_Track:track, const bool:bLoop, const Float:flStartTime);
+forward PlayerMusic_OnTrackScheduled(const pPlayer, const PlayerMusic_Track:track, bool:bLoop, Float:flStartTime);
 
 /**
  * Called when a track starts.
@@ -168,9 +168,9 @@ forward PlayerMusic_OnTrackStart(const pPlayer, const PlayerMusic_Track:track);
  *
  * @param pPlayer     The player.
  * @param track       The track handle.
- * @param bStoped     Whether the track was stopped.
+ * @param bStopped     Whether the track was stopped.
  */
-forward PlayerMusic_OnTrackEnd(const pPlayer, const PlayerMusic_Track:track, bool:bStoped);
+forward PlayerMusic_OnTrackEnd(const pPlayer, const PlayerMusic_Track:track, bool:bStopped);
 
 /**
  * Called when a track is paused.

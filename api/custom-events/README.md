@@ -124,9 +124,8 @@ public Command_Boo(pPlayer) {
     CustomEvent_Emit("boo-event");
 }
 
-public CustomEvent_OnEmit(const szEvent[]) {
+public CustomEvent_OnEmit(const szEvent[], const pActivator) {
     if (equal(szEvent, "boo-event")) {
-        new pActivator = CustomEvent_GetActivator();
         client_print(pActivator, print_center, "Boo!");
     }
 }

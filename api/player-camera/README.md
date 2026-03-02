@@ -104,7 +104,7 @@ You can hook into camera events to add custom logic when the camera is activated
 #### Example: Activation Callback
 
 ```pawn
-public PlayerCamera_OnActivated(pPlayer) {
+public PlayerCamera_OnActivated(const pPlayer) {
   client_print(pPlayer, print_chat, "Your custom camera has been activated!");
 }
 ```
@@ -112,7 +112,7 @@ public PlayerCamera_OnActivated(pPlayer) {
 #### Example: Deactivation Callback
 
 ```pawn
-public PlayerCamera_OnDeactivated(pPlayer) {
+public PlayerCamera_OnDeactivated(const pPlayer) {
   client_print(pPlayer, print_chat, "Your custom camera has been deactivated!");
 }
 ```

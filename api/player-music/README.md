@@ -48,26 +48,26 @@ Control track playback with various native functions.
 
 ```pawn
 // Stop current track
-PlayerMusic_Player_StopTrack(id);
+PlayerMusic_Player_StopTrack(pPlayer);
 
 // Pause current track
-PlayerMusic_Player_PauseTrack(id);
+PlayerMusic_Player_PauseTrack(pPlayer);
 
 // Resume paused track
-PlayerMusic_Player_ResumeTrack(id);
+PlayerMusic_Player_ResumeTrack(pPlayer);
 
 // Check if track is paused
-if (PlayerMusic_Player_IsTrackPaused(id)) {
+if (PlayerMusic_Player_IsTrackPaused(pPlayer)) {
     // Handle paused state
 }
 
 // Check if track is looped
-if (PlayerMusic_Player_IsTrackLooped(id)) {
+if (PlayerMusic_Player_IsTrackLooped(pPlayer)) {
     // Handle looped state
 }
 
 // Get remaining track time
-new Float:timeLeft = PlayerMusic_Player_GetTrackTimeLeft(id);
+new Float:timeLeft = PlayerMusic_Player_GetTrackTimeLeft(pPlayer);
 ```
 
 ---
@@ -80,33 +80,33 @@ Hook into various track events to implement custom behavior.
 #include <api_player_music>
 
 // Called when a track is scheduled to play
-public PlayerMusic_OnTrackScheduled(pPlayer, PlayerMusic_Track:track, bool:loop, Float:startTime) {
+public PlayerMusic_OnTrackScheduled(const pPlayer, const PlayerMusic_Track:track, bool:loop, Float:startTime) {
     // Handle track scheduling
 }
 
 // Called when a track starts playing
-public PlayerMusic_OnTrackStart(pPlayer, PlayerMusic_Track:track) {
+public PlayerMusic_OnTrackStart(const pPlayer, const PlayerMusic_Track:track) {
     // Handle track start
 }
 
 // Called when a track ends
-public PlayerMusic_OnTrackEnd(pPlayer, PlayerMusic_Track:track, bool:stopped) {
+public PlayerMusic_OnTrackEnd(const pPlayer, const PlayerMusic_Track:track, bool:bStopped) {
     // Handle track end
     // stopped = true if stopped manually, false if ended naturally
 }
 
 // Called when a track is paused
-public PlayerMusic_OnTrackPause(pPlayer, PlayerMusic_Track:track) {
+public PlayerMusic_OnTrackPause(const pPlayer, const PlayerMusic_Track:track) {
     // Handle track pause
 }
 
 // Called when a track is resumed
-public PlayerMusic_OnTrackResume(pPlayer, PlayerMusic_Track:track) {
+public PlayerMusic_OnTrackResume(const pPlayer, const PlayerMusic_Track:track) {
     // Handle track resume
 }
 
 // Called when a looped track starts a new iteration
-public PlayerMusic_OnTrackLoop(pPlayer, PlayerMusic_Track:track) {
+public PlayerMusic_OnTrackLoop(const pPlayer, const PlayerMusic_Track:track) {
     // Handle track loop
 }
 ```
@@ -134,7 +134,7 @@ The API maintains precise timing even through pauses and volume changes:
 
 ```pawn
 // Get remaining track time (accounts for pauses)
-new Float:timeLeft = PlayerMusic_Player_GetTrackTimeLeft(id);
+new Float:timeLeft = PlayerMusic_Player_GetTrackTimeLeft(pPlayer);
 ```
 
 ---
@@ -180,7 +180,7 @@ public client_putinserver(pPlayer) {
   set_task(1.0, "Task_ShowTrackInfo", pPlayer, _, _, "b");
 }
 
-public PlayerMusic_OnTrackEnd(const pPlayer, const PlayerMusic_Track:track, bool:bStoped) {
+public PlayerMusic_OnTrackEnd(const pPlayer, const PlayerMusic_Track:track, bool:bStopped) {
   @Player_ScheduleTrack(pPlayer);
 }
 

@@ -59,15 +59,15 @@ public plugin_precache() {
   PlayerRole_RegisterMethod("medic", "Heal", "@Medic_Heal");
 }
 
-@Support_Assign(pPlayer) {
+@Support_Assign(const pPlayer) {
   client_print(pPlayer, print_chat, "You are now support!");
 }
 
-@Support_Unassign(pPlayer) {
+@Support_Unassign(const pPlayer) {
   client_print(pPlayer, print_chat, "You are no longer support.");
 }
 
-@Medic_Heal(pPlayer) {
+@Medic_Heal(const pPlayer) {
   // Custom healing logic
   set_user_health(pPlayer, get_user_health(pPlayer) + 25);
   client_print(pPlayer, print_chat, "You have been healed!");
@@ -87,7 +87,7 @@ public plugin_precache() {
   PlayerRole_ImplementMethod("commander", PlayerRole_Method_Assign, "@Commander_Assign");
 }
 
-@Commander_Assign(pPlayer) {
+@Commander_Assign(const pPlayer) {
   // Set a custom member "iLevel" for the commander role
   PlayerRole_Player_SetMember(pPlayer, "commander", "iLevel", 5);
 

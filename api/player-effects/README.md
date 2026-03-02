@@ -23,18 +23,18 @@ public plugin_init() {
 
   PlayerEffect_Register(
     "example-effect",
-    "@Player_EffectInvoke",
-    "@Player_EffectRevoke",
+    "Callback_Effect_Invoke",
+    "Callback_Effect_Revoke",
     "example_icon",
     {255, 128, 0} // Orange color
   );
 }
 
-@Player_EffectInvoke(this) {
+public Callback_Effect_Invoke(const this) {
   client_print(this, print_chat, "Effect invoked on you!");
 }
 
-@Player_EffectRevoke(this) {
+public Callback_Effect_Revoke(const this) {
   client_print(this, print_chat, "Effect revoked from you!");
 }
 ```
