@@ -52,7 +52,7 @@ new Float:g_rgflPlayerNextBlink[MAX_PLAYERS + 1];
 new Float:g_rgflPlayerReleaseClimbBlock[MAX_PLAYERS + 1];
 
 public plugin_init() {
-  register_plugin("[API] Player Dizziness", "1.1.0", "Hedgehog Fog");
+  register_plugin("[API] Player Dizziness", "1.1.1", "Hedgehog Fog");
 
   RegisterHamPlayer(Ham_Player_Jump, "HamHook_Player_Jump_Post", .Post = 1);
   RegisterHamPlayer(Ham_Player_PreThink, "HamHook_Player_PreThink_Post", .Post = 1);
@@ -101,8 +101,8 @@ public client_connect(pPlayer) {
   g_rgflPlayerNextPushThink[pPlayer] = 0.0;
   g_rgflPlayerNextBlink[pPlayer] = 0.0;
 
-  xs_vec_copy(Float:{0.0, 0.0, 0.0}, g_rgvecPlayerPushVelocityTarget[pPlayer]);
-  xs_vec_copy(Float:{0.0, 0.0, 0.0}, g_rgvecPlayerPushVelocityAcc[pPlayer]);
+  xs_vec_set(g_rgvecPlayerPushVelocityTarget[pPlayer], 0.0, 0.0, 0.0);
+  xs_vec_set(g_rgvecPlayerPushVelocityAcc[pPlayer], 0.0, 0.0, 0.0);
 }
 
 public server_frame() {
@@ -168,7 +168,7 @@ public HamHook_Player_Jump_Post(const pPlayer) {
 
     xs_vec_add(vecBaseVelocity, g_rgvecPlayerPushVelocityAcc[this], vecBaseVelocity);
 
-    static Float:flMovementSpeed; flMovementSpeed = xs_vec_len(vecMovementSpeed[this]);
+    static Float:flMovementSpeed; flMovementSpeed = xs_vec_len(vecMovementSpeed);
     if (flMovementSpeed > 1.0) {
       static Float:vecMovementCompensation[3];
       xs_vec_div_scalar(vecMovementSpeed, flMovementSpeed, vecMovementCompensation);
@@ -307,8 +307,11 @@ Float:@Player_CalculateMovementVelocity(const &this, Float:vecOut[3]) {
   if (iButtons & IN_MOVELEFT) vecInput[1] -= 1.0;
 
   static Float:vecMovementDir[3];
-  xs_vec_mul_scalar(vecForward, vecInput[0], vecMovementDir);
-  xs_vec_add_scaled(vecMovementDir, vecRight, vecInput[1], vecMovementDir);
+
+  for (new i = 0; i < 3; ++i) {
+    vecMovementDir[i] = (vecForward[i] * vecInput[0]) + (vecRight[i] * vecInput[1]);
+  }
+
   xs_vec_normalize(vecMovementDir, vecMovementDir);
 
   static Float:flSpeed; flSpeed = xs_vec_dot(vecVelocity, vecMovementDir);
@@ -339,7 +342,7 @@ Float:@Player_GetMaxMoveSpeed(const &this) {
 }
 
 @Player_ClimbPreventionThink(const &this) {
-  if (g_rgflPlayerReleaseClimbBlock[this] && g_rgflPlayerReleaseClimbBlock[this] <= get_gametime()) {
+  if (g_rgflPlayerReleaseClimbBlock[this] && g_rgflPlayerReleaseClimbBlock[this] <= g_flGameTime) {
     @Player_SetClimbPrevention(this, false);
     g_rgflPlayerReleaseClimbBlock[this] = 0.0;
   }
