@@ -283,10 +283,10 @@ UpdatePluginState() {
     unregister_forward(FM_UpdateClientData, g_pfwfmUpdateClientData, 0);
     g_pfwfmUpdateClientData = 0;
 
-    unregister_forward(FM_UpdateClientData, g_pfwfmCheckVisibility, 0);
+    unregister_forward(FM_CheckVisibility, g_pfwfmCheckVisibility, 0);
     g_pfwfmCheckVisibility = 0;
 
-    unregister_forward(FM_UpdateClientData, g_pfwfmAddToFullPackPost, 0);
+    unregister_forward(FM_AddToFullPack, g_pfwfmAddToFullPackPost, 1);
     g_pfwfmAddToFullPackPost = 0;
 
     engfunc(EngFunc_RemoveEntity, g_pCamera);
