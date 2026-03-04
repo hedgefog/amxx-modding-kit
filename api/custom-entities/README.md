@@ -11,20 +11,32 @@ To implement a custom entity, the first thing you need to do is register a new e
 Let's create a `key` item entity:
 
 ```pawn
-#include <amxmodx>
-#include <fakemeta>
 #include <api_custom_entities>
 
 public plugin_precache() {
-  CE_RegisterClass("item_key", CE_Preset_Item);
+  CE_RegisterClass("item_key", CE_Class_BaseItem);
 }
 ```
 
 In this example, the `CE_Class_BaseItem` preset class is used to implement the item. It inherits logic for items such as pickup methods.
 
+#### 🔗 Extending an Existing Entity
+
+You can inherit properties from an existing entity by specifying the base entity during registration.
+
+```pawn
+#include <api_custom_entities>
+
+public plugin_precache() {
+  CE_RegisterClass("item_gold_key", "item_key");
+}
+```
+
+This example creates `item_gold_key`, inheriting properties and logic from `item_key`.
+
 ### ⚙️ Setting Entity Members
 
-The entity currently lacks a model and size, so let's provide them by implementing the `Allocate` method for the entity to supply all the necessary members:
+The entity currently lacks a model and size, so let's provide them by implementing the `Create` method for the entity to supply all the necessary members:
 
 ```pawn
 public plugin_precache() {
@@ -33,11 +45,11 @@ public plugin_precache() {
 
   CE_RegisterClass("item_key", CE_Class_BaseItem);
   
-  CE_ImplementClassMethod("item_key", CE_Method_Allocate, "@KeyItem_Allocate");
+  CE_ImplementClassMethod("item_key", CE_Method_Create, "@KeyItem_Create");
 }
 
-@KeyItem_Allocate(const this) {
-  CE_CallBaseMethod(); // Calling the base Allocate method
+@KeyItem_Create(const this) {
+  CE_CallBaseMethod(); // Calling the base Create method
 
   CE_SetMemberString(this, CE_Member_szModel, "models/w_security.mdl");
   CE_SetMemberVec(this, CE_Member_vecMins, Float:{-8.0, -8.0, 0.0}); 
@@ -45,11 +57,11 @@ public plugin_precache() {
 }
 ```
 
-In the implementation of the `Allocate` method, the `CE_CallBaseMethod()` call allows us to invoke the base `Allocate` method of the `CE_Class_BaseItem` preset class, allowing it to handle its own allocation logic before executing custom logic. Make sure to include this call in every implemented or overridden method unless you need to fully rewrite the implementation.
+In the implementation of the `Create` method, the `CE_CallBaseMethod()` call allows us to invoke the base `Create` method of the `CE_Class_BaseItem` preset class, allowing it to handle its own allocation logic before executing custom logic. Make sure to include this call in every implemented or overridden method unless you need to fully rewrite the implementation.
 
 >[!CAUTION]
 >
-> The `Allocate` method is called during entity initialization. Modifying entity variables or invoking engine functions on the entity within this method may lead to unexpected results. Use this method only for initializing custom entity members!
+> The `Create` method is called during entity initialization. Modifying entity variables or invoking engine functions on the entity within this method may lead to unexpected results. Use this method only for initializing custom entity members!
 
 >[!CAUTION]
 >
@@ -61,7 +73,7 @@ Natives like `CE_SetMemberString` and `CE_SetMemberVec` are used to set members/
 
 Our `item_key` entity is functional, allowing you to place the entity with the classname `item_key` on your map. It will spawn in the game and can be picked up.
 
-However, we still need to add some logic to the entity, as it currently does not perform any specific actions. Let's implement the `Pickup` and `CanPickup` methods in the same way we implemented `Allocate`:
+However, we still need to add some logic to the entity, as it currently does not perform any specific actions. Let's implement the `Pickup` and `CanPickup` methods in the same way we implemented `Create`:
 
 ```pawn
 new g_rgbPlayerHasKey[MAX_PLAYERS + 1];
@@ -69,12 +81,12 @@ new g_rgbPlayerHasKey[MAX_PLAYERS + 1];
 public plugin_precache() {
   CE_RegisterClass("item_key", CE_Class_BaseItem);
   
-  CE_ImplementClassMethod("item_key", CE_Method_Allocate, "@KeyItem_Allocate");
+  CE_ImplementClassMethod("item_key", CE_Method_Create, "@KeyItem_Create");
   CE_ImplementClassMethod("item_key", CE_Method_CanPickup, "@KeyItem_CanPickup");
   CE_ImplementClassMethod("item_key", CE_Method_Pickup, "@KeyItem_Pickup");
 }
 
-@KeyItem_Allocate(const this) { ... }
+@KeyItem_Create(const this) { ... }
 
 @KeyItem_CanPickup(const this, const pPlayer) {
   // Base implementation returns false if the item is not on the ground
@@ -136,7 +148,7 @@ public plugin_precache() {
 
   CE_RegisterClass(ENTITY_CLASSNAME, CE_Class_BaseItem);
   
-  CE_ImplementClassMethod(ENTITY_CLASSNAME, CE_Method_Allocate, "@KeyItem_Allocate");
+  CE_ImplementClassMethod(ENTITY_CLASSNAME, CE_Method_Create, "@KeyItem_Create");
   CE_ImplementClassMethod(ENTITY_CLASSNAME, CE_Method_Spawn, "@KeyItem_Spawn");
   CE_ImplementClassMethod(ENTITY_CLASSNAME, CE_Method_CanPickup, "@KeyItem_CanPickup");
   CE_ImplementClassMethod(ENTITY_CLASSNAME, CE_Method_Pickup, "@KeyItem_Pickup");
@@ -145,7 +157,7 @@ public plugin_precache() {
   CE_RegisterClassKeyMemberBinding(ENTITY_CLASSNAME, "type", m_iType, CEMemberType_Cell);
 }
 
-@KeyItem_Allocate(const this) {
+@KeyItem_Create(const this) {
   CE_CallBaseMethod();
 
   CE_SetMemberString(this, CE_Member_szModel, g_szModel);
@@ -203,13 +215,13 @@ public plugin_precache() {
   ...
 
   // Registering new class methods
-  CE_RegisterClassMethod(ENTITY_CLASSNAME, SetType, "@KeyItem_SetType", CEMemberType_Cell);
+  CE_RegisterClassMethod(ENTITY_CLASSNAME, SetType, "@KeyItem_SetType", CE_Type_Cell);
   CE_RegisterClassMethod(ENTITY_CLASSNAME, UpdateColor, "@KeyItem_UpdateColor");
 
   ...
 }
 
-@KeyItem_Allocate(const this) { ... }
+@KeyItem_Create(const this) { ... }
 
 @KeyItem_Spawn(const this) {
   CE_CallBaseMethod();
@@ -236,6 +248,22 @@ public plugin_precache() {
   set_pev(this, pev_rendercolor, KEY_COLORS_F[iType]);
 }
 ```
+
+### 🔧 Hooks
+
+You can hook into specific native methods of an entity class using `CE_RegisterClassNativeMethodHook`:
+
+```pawn
+public plugin_precache() {
+  CE_RegisterClassNativeMethodHook(ENTITY_CLASSNAME, CE_Method_Spawn, "CEHook_KeyItem_Spawn");
+}
+
+public CEHook_KeyItem_Spawn(const pEntity) {
+  // Do something after entity spawns
+}
+```
+
+Here, `CE_RegisterClassNativeMethodHook` attaches a callback to the entity's `Spawn` method, letting you execute custom logic when the entity spawns.
 
 ### 🕵️‍♂️ Testing and Debugging
 

@@ -29,7 +29,7 @@ public EventSubscriber_MyEvent() {
 You can register an event with parameters using the `CustomEvent_Register` function. Provide the event key, parameter types, and the number of parameters.
 
 ```pawn
-CustomEvent_Register("my-event", EP_Cell, EP_Float, EP_Array, 3, EP_FloatArray, 3, EP_String, EP_Cell);
+CustomEvent_Register("my-event", CEP_Cell, CEP_Float, CEP_Array, 3, CEP_FloatArray, 3, CEP_String, CEP_Cell);
 ```
 
 There are two ways to obtain event parameters.

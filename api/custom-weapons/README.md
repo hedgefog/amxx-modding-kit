@@ -1,10 +1,14 @@
 # 🔫 Custom Weapons API
 
-The **Custom Weapons API** is a comprehensive framework designed for creating, managing, and customizing weapons in GoldSrc games using **AmxModX**. This documentation provides instructions and examples for registering new weapons, extending existing ones, and implementing custom logic through hooks and methods.
+The **Custom Weapons API** provides a flexible framework for managing and creating custom weapons. This API allows developers to register, give, manipulate, and interact with custom weapons, defining their behavior through hooks and methods. This API uses OOP-style logic and integrates seamlessly with GoldSrc games.
 
-## 📦 Registering a New Weapon
+## ⚙️ Implementing a Custom Weapon
 
-To create a new weapon, you need to register it using the `CW_RegisterClass` native. Below is an example of registering a new weapon.
+### 📚 Registering a New Weapon Class
+
+To implement a custom weapon, the first thing you need to do is register a new weapon class using the `CW_RegisterClass` native function. This can be done in the `plugin_precache` function.
+
+Let's create a simple handgun weapon:
 
 ```pawn
 #include <api_custom_weapons>
@@ -39,28 +43,40 @@ This example creates `weapon_glock`, inheriting properties and logic from `weapo
 
 Once a weapon is registered, you can define its behavior by implementing methods. The API provides hooks for actions like firing, reloading, and deploying.
 
-### Implementing the Allocate Method
+### Implementing the Create Method
 
-The `Allocate` method initializes the weapon's properties, similar to a constructor.
+The `Create` method initializes the weapon's properties, similar to a constructor.
 
 ```pawn
 public plugin_precache() {
-  CW_ImplementClassMethod(WEAPON_NAME, CW_Method_Allocate, "@Weapon_Allocate");
+  CW_RegisterClass(WEAPON_NAME);
+
+  CW_ImplementClassMethod(WEAPON_NAME, CW_Method_Create, "@Weapon_Create");
 }
 
-@Weapon_Allocate(const this) {
-  CW_CallBaseMethod();
+@Weapon_Create(const this) {
+  CW_CallBaseMethod(); // Calling the base Create method
 
   CW_SetMember(this, CW_Member_iMaxClip, 30); // Set max clip size
   CW_SetMember(this, CW_Member_iPrimaryAmmoType, 10); // Set primary ammo type
 }
 ```
 
-In this example, `CW_SetMember` is used within the `Allocate` method to set initial values for the weapon's properties, such as the maximum number of bullets in a clip and the primary ammo type.
+In the implementation of the `Create` method, the `CW_CallBaseMethod()` call allows us to invoke the base `Create` method of the parent class, allowing it to handle its own allocation logic before executing custom logic. Make sure to include this call in every implemented or overridden method unless you need to fully rewrite the implementation.
 
-### Implementing Primary Attack
+> [!CAUTION]
+>
+> The `Create` method is called during weapon initialization. Modifying entity variables or invoking engine functions on the weapon within this method may lead to unexpected results. Use this method only for initializing custom weapon members!
 
-Define the weapon's primary attack logic by implementing the `PrimaryAttack` method.
+> [!CAUTION]
+>
+> When calling `CW_CallBaseMethod`, you need to pass all method arguments to ensure the base method receives the necessary context for its operations.
+
+Natives like `CW_SetMember` and `CW_SetMemberString` are used to set members/properties for the weapon instance. Constants such as `CW_Member_*` are used to specify the property names. For example, `CW_Member_iMaxClip` sets the maximum number of bullets in a clip, `CW_Member_iPrimaryAmmoType` sets the primary ammo type ID, and `CW_Member_szModel` sets the world model of the weapon.
+
+### 💡 Writing Logic for the Weapon
+
+Our weapon is registered with basic properties, but we still need to add logic for actions like shooting, reloading, and deploying. Let's implement `PrimaryAttack` method in the same way we implemented `Create`:
 
 ```pawn
 public plugin_precache() {
@@ -98,7 +114,8 @@ public plugin_precache() {
   CW_CallBaseMethod();
 
   if (CW_CallNativeMethod(this, CW_Method_DefaultReload, 5, 1.68)) {
-    emit_sound(CW_GetCallerPlugin(), CHAN_WEAPON, "items/9mmclip1.wav", VOL_NORM, ATTN_NORM, 0, PITCH_NORM);
+    static pPlayer; pPlayer = get_ent_data_entity(this, "CBasePlayerItem", "m_pPlayer");
+    emit_sound(pPlayer, CHAN_WEAPON, "items/9mmclip1.wav", VOL_NORM, ATTN_NORM, 0, PITCH_NORM);
   }
 }
 ```
@@ -116,10 +133,10 @@ You can store and retrieve custom data for your weapon using `CW_GetMember` and 
 ```pawn
 public plugin_precache() {
   /* ... */
-  CW_ImplementClassMethod(WEAPON_NAME, CW_Method_Allocate, "@Weapon_Allocate");
+  CW_ImplementClassMethod(WEAPON_NAME, CW_Method_Create, "@Weapon_Create");
 }
 
-@Weapon_Allocate(const this) {
+@Weapon_Create(const this) {
   CW_CallBaseMethod();
 
   CW_SetMember(this, CW_Member_iMaxClip, 7);
@@ -148,7 +165,7 @@ Use `CW_CallNativeMethod` to invoke built-in API methods, such as `DefaultShot` 
 
 **Syntax:**
 ```pawn
-CW_CallNativeMethod(this, CW_Method_Type, [arguments]);
+CW_CallNativeMethod(this, CW_Method_Type, ...);
 ```
 
 **Example:**
@@ -164,7 +181,7 @@ Use `CW_CallMethod` to call custom methods that you or others have implemented w
 
 **Syntax:**
 ```pawn
-CW_CallMethod(this, "CustomMethodName", [arguments]);
+CW_CallMethod(this, "CustomMethodName", ...);
 ```
 
 **Example:**
@@ -225,6 +242,26 @@ public CWHook_Weapon_PrimaryAttack(const pWeapon) {
 
 Here, `CW_RegisterClassNativeMethodHook` attaches a callback to the weapon’s `Think` method, letting you execute custom logic every server tick.
 
+
+### 🕵️‍♂️ Testing and Debugging
+
+> How can I give myself a custom weapon during testing?
+
+There are a few ways to do it!
+
+#### Giving a Weapon Using the Console
+
+You can give yourself a custom weapon using the console command `cw_give <classname>`. The `<classname>` parameter is the name of the registered weapon class. For example, to give yourself the `weapon_9mmhandgun`:
+
+```bash
+cw_give "weapon_9mmhandgun"
+```
+
+> [!NOTE]
+>
+> The `cw_give` command requires admin access (ADMIN_CVAR flag).
+
+
 ## 🔫 Example: Simple 9mm handgun
 
 Example of simple handgun from Half-Life.
@@ -280,7 +317,7 @@ public plugin_precache() {
   precache_sound(g_szReloadEndSound);
 
   CW_RegisterClass(WEAPON_NAME);
-  CW_ImplementClassMethod(WEAPON_NAME, CW_Method_Allocate, "@Weapon_Allocate");
+  CW_ImplementClassMethod(WEAPON_NAME, CW_Method_Create, "@Weapon_Create");
   CW_ImplementClassMethod(WEAPON_NAME, CW_Method_Idle, "@Weapon_Idle");
   CW_ImplementClassMethod(WEAPON_NAME, CW_Method_PrimaryAttack, "@Weapon_PrimaryAttack");
   CW_ImplementClassMethod(WEAPON_NAME, CW_Method_Reload, "@Weapon_Reload");
@@ -293,7 +330,7 @@ public plugin_init() {
   register_plugin(PLUGIN, VERSION, AUTHOR);
 }
 
-@Weapon_Allocate(const this) {
+@Weapon_Create(const this) {
   CW_CallBaseMethod();
 
   CW_SetMemberString(this, CW_Member_szModel, g_szWeaponModelW);

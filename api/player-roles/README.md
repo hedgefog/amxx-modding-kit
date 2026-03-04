@@ -74,7 +74,7 @@ public plugin_precache() {
 }
 ```
 
-You can call base methods in inherited roles using `PlayerRole_Player_CallBaseMethod(pPlayer)`.
+You can call base methods in inherited roles using `PlayerRole_This_CallBaseMethod()`.
 
 ---
 
