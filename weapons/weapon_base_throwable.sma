@@ -33,7 +33,7 @@ public plugin_precache() {
 }
 
 public plugin_init() {
-  register_plugin("[Weapon] Base Throwable", "1.0.0", "Hedgehog Fog");
+  register_plugin("[Weapon] Base Throwable", "1.0.1", "Hedgehog Fog");
 }
 
 @Weapon_Create(const this) {

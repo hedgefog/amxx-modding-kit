@@ -29,7 +29,7 @@ public plugin_precache() {
 }
 
 public plugin_init() {
-  register_plugin("[API] Player Cosmetics", "1.0.0", "Hedgehog Fog");
+  register_plugin("[API] Player Cosmetics", "1.0.1", "Hedgehog Fog");
 
   RegisterHam(Ham_Think, "info_target", "HamHook_Target_Think", .Post = 0);
 

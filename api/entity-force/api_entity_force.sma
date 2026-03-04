@@ -34,7 +34,7 @@ public plugin_precache() {
 }
 
 public plugin_init() {
-  register_plugin("[API] Entity Force", "1.0.0", "Hedgehog Fog");
+  register_plugin("[API] Entity Force", "1.0.1", "Hedgehog Fog");
 
   register_forward(FM_Think, "FMHook_Think");
 
