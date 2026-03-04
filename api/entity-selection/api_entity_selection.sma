@@ -618,7 +618,11 @@ Selection_DrawSelection(const iId) {
 
   static iLifeTime; iLifeTime = max(floatround(g_rgflSelectionThinkTime[iId] * 10, floatround_ceil), 1);
 
-  static iModelIndex; iModelIndex = engfunc(EngFunc_ModelIndex, g_szTrailModel);
+  static iModelIndex = 0;
+  if (!iModelIndex) {
+    iModelIndex = engfunc(EngFunc_ModelIndex, g_szTrailModel);
+  }
+
   // static Float:flYaw; flYaw = iId[Selection_CursorYaw];
   // flYaw -= 90.0;
   static Float:flHeight; flHeight = floatmax(g_rgvecSelectionStart[iId][2], g_rgvecSelectionCursor[iId][2]) + SelectionGroundOffset;
