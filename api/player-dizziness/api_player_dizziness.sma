@@ -5,6 +5,8 @@
 #include <fakemeta>
 #include <xs>
 
+#define IS_ZERO_VECTOR(%1) (!(%1[0] || %1[1] || %1[2]))
+
 #define PLAYER_PREVENT_CLIMB (1<<5)
 
 #define PLAYER_DUCKING_MULTIPLIER 0.333
@@ -208,7 +210,7 @@ public HamHook_Player_Jump_Post(const pPlayer) {
   vecPunchAngle[0] += floatclamp(xs_vec_dot(vecVelocity, vecForward) + xs_vec_dot(vecBaseVelocity, vecForward), -flMaxMoveSpeed, flMaxMoveSpeed) / flMaxMoveSpeed * flMaxPunchAngle * DIZZINESS_THINK_RATE;
   vecPunchAngle[2] += floatclamp(xs_vec_dot(vecVelocity, vecRight) + xs_vec_dot(vecBaseVelocity, vecRight), -flMaxMoveSpeed, flMaxMoveSpeed) / flMaxMoveSpeed * flMaxPunchAngle * DIZZINESS_THINK_RATE;
 
-  if (xs_vec_len(vecPunchAngle) > 0.0) {
+  if (!IS_ZERO_VECTOR(vecPunchAngle)) {
     set_pev(this, pev_punchangle, vecPunchAngle);
   }
 }

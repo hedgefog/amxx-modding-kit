@@ -623,31 +623,31 @@ stock Float:UTIL_GetConeVector(Float:flDegrees, Float:vecOut[3] = {0.0, 0.0, 0.0
 }
 
 stock Float:UTIL_CalculateWeaponSpread(const &pWeapon, const Float:vecSpread[3], iShotsFired = 0, Float:flMovementFactor = 1.0, Float:flFirstShotModifier = 1.0, Float:flDuckFactor = 1.0, Float:flAirFactor = 1.0, Float:vecOut[3]) {
-    static Float:flRatio; flRatio = 1.0;
+  static Float:flRatio; flRatio = 1.0;
 
-    static pPlayer; pPlayer = get_ent_data_entity(pWeapon, "CBasePlayerItem", "m_pPlayer");
-    static Float:vecVelocity[3]; pev(pPlayer, pev_velocity, vecVelocity);
-    static iPlayerFlags; iPlayerFlags = pev(pPlayer, pev_flags);
+  static pPlayer; pPlayer = get_ent_data_entity(pWeapon, "CBasePlayerItem", "m_pPlayer");
+  static Float:vecVelocity[3]; pev(pPlayer, pev_velocity, vecVelocity);
+  static iPlayerFlags; iPlayerFlags = pev(pPlayer, pev_flags);
 
-    if (xs_vec_len(vecVelocity) > 0) {
-        flRatio *= flMovementFactor;
-    }
+  if (vecVelocity[0] || vecVelocity[1] || vecVelocity[2]) {
+    flRatio *= flMovementFactor;
+  }
 
-    if (iPlayerFlags & FL_DUCKING) {
-        flRatio *= flDuckFactor;
-    }
+  if (iPlayerFlags & FL_DUCKING) {
+    flRatio *= flDuckFactor;
+  }
 
-    if (~iPlayerFlags & FL_ONGROUND) {
-        flRatio *= flAirFactor;
-    }
+  if (~iPlayerFlags & FL_ONGROUND) {
+    flRatio *= flAirFactor;
+  }
 
-    if (!iShotsFired) {
-        flRatio *= flFirstShotModifier;
-    }
+  if (!iShotsFired) {
+    flRatio *= flFirstShotModifier;
+  }
 
-    xs_vec_mul_scalar(vecSpread, flRatio, vecOut);
+  xs_vec_mul_scalar(vecSpread, flRatio, vecOut);
 
-    return flRatio;
+  return flRatio;
 }
 
 stock UTIL_GrenadeExplode(pEntity, Float:flDamage, const &pTrace, iDamageBits, Float:flRadius, Float:flMagnitude) {

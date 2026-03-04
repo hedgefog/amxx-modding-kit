@@ -350,21 +350,23 @@ CreatePlayerCamera(const &pPlayer) {
   */
   while (IS_PLAYER(pHit)) {
     static rgiPlayerSolidType[MAX_PLAYERS + 1];
-    for (new pPlayer = 1; pPlayer <= MAX_PLAYERS; ++pPlayer) {
-      rgiPlayerSolidType[pPlayer] = SOLID_NOT;
-    }
+    new iPlayerRestoreBits = 0;
 
     while (IS_PLAYER(pHit)) {
-      rgiPlayerSolidType[pHit] = pev(pHit, pev_solid);
+      if (~iPlayerRestoreBits & BIT(pHit & 31)) {
+        rgiPlayerSolidType[pHit] = pev(pHit, pev_solid);
+        set_pev(pHit, pev_solid, SOLID_NOT);
+        iPlayerRestoreBits |= BIT(pHit & 31);
+      }
 
-      set_pev(pHit, pev_solid, SOLID_NOT);
       engfunc(EngFunc_TraceHull, vecOrigin, g_rgvecPlayerCameraCurrentOrigin[this], HULL_HEAD, IGNORE_MONSTERS, this, g_pTrace);
 
       pHit = get_tr2(g_pTrace, TR_pHit);
     }
 
-    for (new pPlayer = 1; pPlayer <= MAX_PLAYERS; ++pPlayer) {
-      if (rgiPlayerSolidType[pPlayer] != SOLID_NOT) {
+    // Loop through players we mutated to restore their solid type
+    for (new pPlayer = 1; pPlayer <= MaxClients; ++pPlayer) {
+      if (iPlayerRestoreBits & BIT(pPlayer & 31)) {
         set_pev(pPlayer, pev_solid, rgiPlayerSolidType[pPlayer]);
       }
     }

@@ -396,7 +396,7 @@ UpdateHooks() {
 /*--------------------------------[ Stocks ]--------------------------------*/
 
 stock bool:UTIL_IsInViewCone(const &pEntity, const Float:vecTarget[3], Float:fMaxAngle) {
-  static Float:vecOrigin[3]; ExecuteHamB(Ham_EyePosition, pEntity, vecOrigin);
+  static Float:vecOrigin[3]; ExecuteHam(Ham_EyePosition, pEntity, vecOrigin);
 
   static Float:vecDir[3];
   xs_vec_sub(vecTarget, vecOrigin, vecDir);

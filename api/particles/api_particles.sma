@@ -89,6 +89,8 @@ new g_pfwfmAddToFullPackPost;
 new Trie:g_itEffectsIds = Invalid_Trie;
 new g_rgEffects[MAX_EFFECTS][ParticleEffect];
 new Function:g_rgEffectHooks[MAX_EFFECTS][ParticleEffectHook][MAX_HOOKS_PER_EFFECT];
+new Float:g_rgvecPlayerEyePosition[MAX_PLAYERS + 1][3];
+new g_iPlayerConnectedBits = 0;
 new g_iEffectsNum = 0;
 
 // Systems storage
@@ -525,6 +527,18 @@ public server_frame() {
   g_flGameTime = get_gametime();
 
   if (g_bEnabled) {
+    // Cache player eye positions and connected bits
+    if (g_iSystemsNum) {
+      for (new pPlayer = 1; pPlayer <= MaxClients; ++pPlayer) {
+        if (is_user_connected(pPlayer)) {
+          g_iPlayerConnectedBits |= BIT(pPlayer & 31);
+          ExecuteHam(Ham_EyePosition, pPlayer, g_rgvecPlayerEyePosition[pPlayer]);
+        } else {
+          g_iPlayerConnectedBits &= ~BIT(pPlayer & 31);
+        }
+      }
+    }
+
     if (g_flNextSystemsUpdate <= g_flGameTime) {
       UpdateSystems();
       g_flNextSystemsUpdate = g_flGameTime + UPDATE_RATE;
@@ -885,16 +899,15 @@ CalculateSystemsNum() {
 
   new iVisibilityBits = 0;
   for (new pPlayer = 1; pPlayer <= MaxClients; ++pPlayer) {
-    if (!is_user_connected(pPlayer)) continue;
+    if (~g_iPlayerConnectedBits & BIT(pPlayer & 31)) continue;
 
-    static Float:vecPlayerOrigin[3]; ExecuteHamB(Ham_EyePosition, pPlayer, vecPlayerOrigin);
-    static Float:flDistance; flDistance = get_distance_f(vecAbsOrigin, vecPlayerOrigin);
+    static Float:flDistance; flDistance = get_distance_f(vecAbsOrigin, g_rgvecPlayerEyePosition[pPlayer]);
     static Float:flFOV; pev(pPlayer, pev_fov, flFOV);
 
     if (flDistance > flVisibleDistance) continue;
     if (flDistance > 32.0 && !is_in_viewcone(pPlayer, vecAbsOrigin, 1)) continue;
 
-    engfunc(EngFunc_TraceLine, vecPlayerOrigin, vecAbsOrigin, IGNORE_MONSTERS, pPlayer, g_pTrace);
+    engfunc(EngFunc_TraceLine, g_rgvecPlayerEyePosition[pPlayer], vecAbsOrigin, IGNORE_MONSTERS, pPlayer, g_pTrace);
 
     static Float:flFraction; get_tr2(g_pTrace, TR_flFraction, flFraction);
     if (flFraction == 1.0) {

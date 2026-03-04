@@ -183,7 +183,7 @@ public HamHook_Player_PostThink(const pPlayer) {
 
   if (!bForceApplied) return;
 
-  engfunc(EngFunc_AlertMessage, at_console, "Entity %d applying force: %f %f %f", this, vecForce[0], vecForce[1], vecForce[2]);
+  // engfunc(EngFunc_AlertMessage, at_console, "Entity %d applying force: %f %f %f", this, vecForce[0], vecForce[1], vecForce[2]);
 
   xs_vec_add(vecVelocity, vecForce, vecVelocity);
   set_pev(this, pev_velocity, vecVelocity);

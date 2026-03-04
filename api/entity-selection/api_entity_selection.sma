@@ -559,7 +559,7 @@ bool:Selection_CalculateCursorPos(const iId) {
   static Float:vecAngles[3];
 
   if (IS_PLAYER(pCursor)) {
-    ExecuteHamB(Ham_EyePosition, pCursor, vecOrigin);
+    ExecuteHam(Ham_EyePosition, pCursor, vecOrigin);
     pev(pCursor, pev_v_angle, vecAngles);
   } else {
     pev(pCursor, pev_origin, vecOrigin);
