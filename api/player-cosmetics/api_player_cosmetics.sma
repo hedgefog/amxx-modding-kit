@@ -10,22 +10,21 @@
 /*--------------------------------[ Constants ]--------------------------------*/
 
 #define COSMETIC_CLASSNAME "_cosmetic"
+#define MAX_ENTITIES 2048
 
 /*--------------------------------[ Plugin State ]--------------------------------*/
 
-new g_iszCosmeticClassName;
 new Float:g_flGameTime = 0.0;
 
 /*--------------------------------[ Player State ]--------------------------------*/
 
 new Trie:g_itPlayerCosmetics[MAX_PLAYERS + 1];
 new Float:g_rgflPlayerNextRenderingUpdate[MAX_PLAYERS + 1];
+new bool:g_rgbEntityIsCosmetic[MAX_ENTITIES + 1] = { false, ... };
 
 /*--------------------------------[ Plugin Initialization ]--------------------------------*/
 
 public plugin_precache() {
-  g_iszCosmeticClassName = engfunc(EngFunc_AllocString, "info_target");
-
   register_forward(FM_OnFreeEntPrivateData, "FMHook_OnFreeEntPrivateData");
 }
 
@@ -137,9 +136,7 @@ public Command_Unequip(const pPlayer, const iLevel, const iCId) {
 /*--------------------------------[ Hooks ]--------------------------------*/
 
 public FMHook_OnFreeEntPrivateData(const pEntity) {
-  static szClassName[32]; pev(pEntity, pev_classname, szClassName, charsmax(szClassName));
-
-  if (equal(szClassName, COSMETIC_CLASSNAME)) {
+  if (g_rgbEntityIsCosmetic[pEntity]) {
     new pOwner = pev(pEntity, pev_owner);
 
     if (pOwner) {
@@ -151,13 +148,13 @@ public FMHook_OnFreeEntPrivateData(const pEntity) {
         TrieDeleteKey(g_itPlayerCosmetics[pOwner], szModelIndex);
       }
     }
+
+    g_rgbEntityIsCosmetic[pEntity] = false;
   }
 }
 
 public HamHook_Target_Think(const pEntity) {
-  static szClassName[32]; pev(pEntity, pev_classname, szClassName, charsmax(szClassName));
-
-  if (equal(szClassName, COSMETIC_CLASSNAME)) {
+  if (g_rgbEntityIsCosmetic[pEntity]) {
     @PlayerCosmetic_Think(pEntity);
   }
 }
@@ -174,7 +171,9 @@ public HamHook_Target_Think(const pEntity) {
     TrieGetCell(g_itPlayerCosmetics[this], szModelIndex, pCosmetic);
   } else {
     pCosmetic = @PlayerCosmetic_Create(this, iModelIndex);
-    TrieSetCell(g_itPlayerCosmetics[this], szModelIndex, pCosmetic);
+    if (pCosmetic != FM_NULLENT) {
+      TrieSetCell(g_itPlayerCosmetics[this], szModelIndex, pCosmetic);
+    }
   }
 
   return pCosmetic;
@@ -216,7 +215,18 @@ bool:@Player_IsCosmeticEquipped(const &this, iModelIndex) {
 /*--------------------------------[ Cosmetic Methods ]--------------------------------*/
 
 @PlayerCosmetic_Create(const &pPlayer, iModelIndex) {
-  new this = engfunc(EngFunc_CreateNamedEntity, g_iszCosmeticClassName);
+  static iszClassname = 0;
+  if (!iszClassname) {
+    iszClassname = engfunc(EngFunc_AllocString, "info_target");
+  }
+
+  new this = engfunc(EngFunc_CreateNamedEntity, iszClassname);
+  if (this == FM_NULLENT) return FM_NULLENT;
+
+  if (this >= sizeof(g_rgbEntityIsCosmetic)) {
+    engfunc(EngFunc_RemoveEntity, this);
+    return FM_NULLENT;
+  }
 
   set_pev(this, pev_classname, COSMETIC_CLASSNAME);
   set_pev(this, pev_movetype, MOVETYPE_FOLLOW);
@@ -225,6 +235,8 @@ bool:@Player_IsCosmeticEquipped(const &this, iModelIndex) {
   set_pev(this, pev_modelindex, iModelIndex);
 
   set_pev(this, pev_nextthink, g_flGameTime);
+
+  g_rgbEntityIsCosmetic[this] = true;
 
   return this;
 }
