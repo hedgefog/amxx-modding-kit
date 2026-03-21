@@ -15,9 +15,14 @@
 
 #define CW_Class_Base "base"
 
-enum CW { CW_InvalidHandler = -1 };
+enum CW { CW_InvalidHandle = -1 };
 enum { CW_IGNORED = 0, CW_HANDLED, CW_OVERRIDE, CW_SUPERCEDE }
 enum { CW_Type_Invalid = -1, CW_Type_Cell, CW_Type_String, CW_Type_Array, CW_Type_Vector, CW_Type_CellRef };
+
+/**
+  * @deprecated Use CW_InvalidHandle instead
+  */
+stock const CW:CW_InvalidHandler = CW:-1;
 
 #if !defined PLAYER_ANIM
   enum PLAYER_ANIM {

@@ -20,9 +20,14 @@
 #define CE_Class_BaseTrigger "ce_basetrigger"
 #define CE_Class_BaseBsp "ce_basebsp"
 
-enum CE { CE_InvalidHandler = -1 };
+enum CE { CE_InvalidHandle = -1 };
 enum { CE_IGNORED = 0, CE_HANDLED, CE_OVERRIDE, CE_SUPERCEDE };
 enum { CE_Type_Invalid = -1, CE_Type_Cell, CE_Type_String, CE_Type_Array, CE_Type_Vector, CE_Type_CellRef };
+
+/**
+  * @deprecated Use CE_InvalidHandle instead
+  */
+stock const CE:CE_InvalidHandler = CE:-1;
 
 enum CEMemberType {
   CEMemberType_Invalid = -1,
