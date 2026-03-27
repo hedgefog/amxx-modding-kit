@@ -45,6 +45,17 @@ mymod/
 
 ---
 
+```markdown
+## API References
+
+The `amxx-modding-kit` is typically integrated at `./.thirdparty/amxx-modding-kit`. Refer to these resources for documentation:
+
+- **`README.md` files**: Provide module overviews, usage guides, and general documentation.
+- **`.inc` files**: Located in the `include/` directory, these contain the function signatures, constants, and technical API specifications.
+```
+
+---
+
 ## Include File Organization
 
 ### Constants File (`mymod_const.inc`)
