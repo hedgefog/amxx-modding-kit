@@ -30,12 +30,12 @@ public plugin_init() {
   );
 }
 
-public Callback_Effect_Invoke(const this) {
-  client_print(this, print_chat, "Effect invoked on you!");
+public Callback_Effect_Invoke(const pPlayer, Float:flDuration) {
+  client_print(pPlayer, print_chat, "Effect invoked on you for %.1f seconds!", flDuration);
 }
 
-public Callback_Effect_Revoke(const this) {
-  client_print(this, print_chat, "Effect revoked from you!");
+public Callback_Effect_Revoke(const pPlayer, iRevokeBits) {
+  client_print(pPlayer, print_chat, "Effect revoked from you!");
 }
 ```
 
@@ -95,19 +95,19 @@ This example demonstrates implementing a "moongravity" effect using the API.
 public plugin_init() {
   register_plugin("Moongravity Effect", "1.0", "Author");
 
-  PlayerEffect_Register(EFFECT_ID, "@Effect_Invoke", "@Effect_Revoke", "icon_moongravity", {64, 64, 255});
+  PlayerEffect_Register(EFFECT_ID, "Callback_Effect_Invoke", "Callback_Effect_Revoke", "icon_moongravity", {64, 64, 255});
 
   register_clcmd("say /moon", "Command_ApplyMoongravity");
 }
 
-@Effect_Invoke(const this) {
-  set_pev(this, pev_gravity, MOON_GRAVITY);
-  client_print(this, print_chat, "Moongravity activated! Enjoy reduced gravity.");
+public Callback_Effect_Invoke(const pPlayer, Float:flDuration) {
+  set_pev(pPlayer, pev_gravity, MOON_GRAVITY);
+  client_print(pPlayer, print_chat, "Moongravity activated! Enjoy reduced gravity.");
 }
 
-@Effect_Revoke(const this) {
-  set_pev(this, pev_gravity, 1.0);
-  client_print(this, print_chat, "Moongravity deactivated. Back to normal gravity.");
+public Callback_Effect_Revoke(const pPlayer, iRevokeBits) {
+  set_pev(pPlayer, pev_gravity, 1.0);
+  client_print(pPlayer, print_chat, "Moongravity deactivated. Back to normal gravity.");
 }
 
 public Command_ApplyMoongravity(const pPlayer) {

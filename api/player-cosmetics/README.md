@@ -37,8 +37,6 @@ public Command_EquipCosmetic(const pPlayer) {
 To remove a cosmetic item from a player, use the `PlayerCosmetic_Unequip` function.
 
 ```pawn
-new iModelIndex = precache_model("models/cosmetics/hat.mdl");
-
 if (PlayerCosmetic_Unequip(pPlayer, iModelIndex)) {
   client_print(pPlayer, print_chat, "You unequipped the cosmetic item.");
 } else {
@@ -65,7 +63,7 @@ Retrieve the entity associated with a cosmetic item using `PlayerCosmetic_GetEnt
 ```pawn
 new pEntity = PlayerCosmetic_GetEntity(pPlayer, iModelIndex);
 
-if (pEntity) {
+if (pEntity != FM_NULLENT) {
   client_print(pPlayer, print_chat, "Cosmetic entity ID: %d", pEntity);
 } else {
   client_print(pPlayer, print_chat, "This cosmetic item is not equipped.");

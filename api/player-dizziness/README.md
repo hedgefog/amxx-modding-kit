@@ -47,7 +47,7 @@ public plugin_init() {
   register_clcmd("say /drink", "Command_Drink");
 }
 
-public client_connected(pPlayer) {
+public client_connect(pPlayer) {
   g_rgflPlayerDrunkStrength[pPlayer] = 0.0;
 }
 
@@ -68,6 +68,7 @@ public Command_Drink(const pPlayer) {
 
 public HamHook_Player_Spawn(pPlayer) {
   g_rgflPlayerDrunkStrength[pPlayer] = 0.0;
+  PlayerDizziness_Set(pPlayer, 0.0);
 }
 ```
 

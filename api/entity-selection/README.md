@@ -72,7 +72,7 @@ for (new i = 0; i < iCount; ++i) {
 Implement a filter callback to restrict selectable entities:
 
 ```pawn
-public bool:Callback_SelectionMonstersFilter(pPlayer, pEntity) {
+public bool:Callback_SelectionMonstersFilter(Selection:iSelection, pEntity) {
   // Only allow selection of monsters
   return CE_IsInstanceOf(pEntity, "base_monster");
 }
@@ -153,6 +153,7 @@ public HamHook_Player_PreThink(pPlayer) {
     new Selection:iSelection = EntitySelection_Create(this);
     EntitySelection_SetFilterCallback(iSelection, "Callback_SelectionMonstersFilter");
     EntitySelection_SetColor(iSelection, SelectionColor);
+    g_rgiPlayerSelection[this] = iSelection;
 
     console_print(this, "Entered strategy mode!");
   } else {
@@ -264,7 +265,7 @@ Float:@Entity_GetSelectionRadius(this) {
   return flRadius;
 }
 
-public bool:Callback_SelectionMonstersFilter(pPlayer, pEntity) {
+public bool:Callback_SelectionMonstersFilter(Selection:iSelection, pEntity) {
   return CE_IsInstanceOf(pEntity, ENTITY_BASE_MONSTER_CLASS);
 }
 
