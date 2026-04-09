@@ -103,10 +103,16 @@ enum ClassFlag (<<=1) {
   ClassFlag_Abstract = (1<<0)
 };
 
-enum (<<=1) {
-  ITEM_FLAG_NOFIREUNDERWATER = (1<<5),
-  ITEM_FLAG_EXHAUST_SECONDARYAMMO
-};
+#if !defined REAPI_VERSION
+  #define REAPI_VERSION 0
+#endif
+
+#if REAPI_VERSION < 524300
+  enum (<<=1) {
+    ITEM_FLAG_NOFIREUNDERWATER = (1<<5),
+    ITEM_FLAG_EXHAUST_SECONDARYAMMO
+  };
+#endif
 
 enum Ammo {
   Ammo_Id,
