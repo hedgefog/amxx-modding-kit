@@ -19,6 +19,7 @@
 #include <shared_random>
 #include <callfunc>
 #include <varargs>
+#include <command_util>
 
 #pragma semicolon 1
 
@@ -1062,13 +1063,31 @@ Array:ReadMethodRegistrationParamsFromNativeCall(iStartArg, iArgc) {
 public Command_Give(const pPlayer, const iLevel, const iCId) {
   if (!cmd_access(pPlayer, iLevel, iCId, 2)) return PLUGIN_HANDLED;
 
-  static szClassname[CW_MAX_NAME_LENGTH]; read_argv(1, ARG_STRREF(szClassname));
-  if (IS_NULLSTR(szClassname)) return PLUGIN_HANDLED;
-  
-  new iId = GetIdByClassName(szClassname);
-  if (iId == CW_INVALID_ID) return PLUGIN_HANDLED;
+  new iArgsNum = read_argc();
 
-  GiveWeapon(pPlayer, iId);
+  if (iArgsNum > 1) {
+    static szTarget[32]; read_argv(1, szTarget, charsmax(szTarget));
+    new iTarget = CMD_RESOLVE_TARGET(szTarget);
+
+    static szClassname[CW_MAX_NAME_LENGTH]; read_argv(2, ARG_STRREF(szClassname));
+    if (IS_NULLSTR(szClassname)) return PLUGIN_HANDLED;
+    
+    new iId = GetIdByClassName(szClassname);
+    if (iId == CW_INVALID_ID) return PLUGIN_HANDLED;
+
+    for (new pTarget = 1; pTarget <= MaxClients; ++pTarget) {
+      if (!CMD_SHOULD_TARGET_PLAYER(pTarget, iTarget, pPlayer)) continue;
+      GiveWeapon(pTarget, iId);
+    }
+  } else {
+    static szClassname[CW_MAX_NAME_LENGTH]; read_argv(1, ARG_STRREF(szClassname));
+    if (IS_NULLSTR(szClassname)) return PLUGIN_HANDLED;
+    
+    new iId = GetIdByClassName(szClassname);
+    if (iId == CW_INVALID_ID) return PLUGIN_HANDLED;
+
+    GiveWeapon(pPlayer, iId);
+  }
 
   return PLUGIN_HANDLED;
 }
