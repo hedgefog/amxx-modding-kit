@@ -1891,8 +1891,7 @@ bool:GiveWeapon(const &pPlayer, const iId, bool:bDropOther = false) {
   if (bDropOther) {
     static ClassInstance:pInstance; pInstance = GET_INSTANCE(pItem);
     static iSlot; iSlot = ClassInstanceGetMember(pInstance, MEMBER(iSlot));
-
-    rg_drop_items_by_slot(pPlayer, InventorySlotType:(iSlot + 1));
+    DropItemBySlot(pPlayer, iSlot);
   }
   
   if (!ExecuteHamB(Ham_AddPlayerItem, pPlayer, pItem)) return false;
@@ -2597,6 +2596,19 @@ any:ExecuteMethod(CW_Method:iMethod, const &pEntity, const iNativeArg = 0, const
 
 /*--------------------------------[ Util Functions ]--------------------------------*/
 
+DropItemBySlot(const pPlayer, iSlot) {
+  #if defined _reapi_included
+    rg_drop_items_by_slot(pPlayer, InventorySlotType:(iSlot + 1));
+  #else
+    #pragma unused pPlayer, iSlot
+    static bool:bNotified = false;
+    if (!bNotified) {
+      LOG_WARNING("DropItemBySlot is not implemented in current build!", 0);
+      bNotified = true;
+    }
+  #endif
+}
+
 ClearMultiDamage() {
 #if defined _reapi_included
   rg_multidmg_clear();
@@ -2605,7 +2617,7 @@ ClearMultiDamage() {
 #else
   static bool:bNotified = false;
   if (!bNotified) {
-    LOG_WARNING("ClearMultiDamage is not implemented in current build!");
+    LOG_WARNING("ClearMultiDamage is not implemented in current build!", 0);
     bNotified = true;
   }
 #endif
@@ -2621,7 +2633,7 @@ ApplyMultiDamage(const pInflictor, const pAttacker) {
 
   static bool:bNotified = false;
   if (!bNotified) {
-    LOG_WARNING("ApplyMultiDamage is not implemented in current build!");
+    LOG_WARNING("ApplyMultiDamage is not implemented in current build!", 0);
     bNotified = true;
   }
 #endif
@@ -2637,7 +2649,7 @@ SetAnimation(pPlayer, PLAYER_ANIM:iPlayerAnim) {
 
   static bool:bNotified = false;
   if (!bNotified) {
-    LOG_WARNING("SetAnimation is not implemented in current build!");
+    LOG_WARNING("SetAnimation is not implemented in current build!", 0);
     bNotified = true;
   }
 #endif
