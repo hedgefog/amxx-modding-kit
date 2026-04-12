@@ -1747,7 +1747,7 @@ static stock __cls_PushMethodCallArgs(iStartArg) {
   // Calculate number of arguments
   #emit LOAD.pri iFrameSize
   #emit SHR.C.pri 2
-  #emit LOAD.alt iStartArg
+  #emit LOAD.S.alt iStartArg
   #emit SUB
   #emit STOR.pri iArgsNum
 
