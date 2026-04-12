@@ -1071,7 +1071,7 @@ public Command_Give(const pPlayer, const iLevel, const iCId) {
 
   new iArgsNum = read_argc();
 
-  if (iArgsNum > 1) {
+  if (iArgsNum > 2) {
     static szTarget[32]; read_argv(1, szTarget, charsmax(szTarget));
     new iTarget = CMD_RESOLVE_TARGET(szTarget);
 
