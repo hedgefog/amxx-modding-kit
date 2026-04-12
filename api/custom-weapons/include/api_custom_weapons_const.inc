@@ -3,7 +3,7 @@
 #endif
 #define _api_custom_weapons_const_included
 
-#define API_CUSTOM_WEAPONS_VERSION "2.0.2"
+#define API_CUSTOM_WEAPONS_VERSION "2.0.3"
 
 #define CW_MAX_NAME_LENGTH 64
 #define CW_MAX_METHOD_NAME_LENGTH 64
