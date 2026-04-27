@@ -1877,12 +1877,12 @@ CreateEntity(const iId) {
 
   CALL_METHOD<UpdateAmmoType>(this, 0);
 
-  new iId = ClassInstanceGetMember(pInstance, MEMBER(iId));
+  new iWeaponId = ClassInstanceGetMember(pInstance, MEMBER(iId));
   new iClip = ClassInstanceGetMember(pInstance, MEMBER(iClip));
   new iPrimaryAmmoType = ClassInstanceGetMember(pInstance, MEMBER(iPrimaryAmmoType));
   new iSecondaryAmmoType = ClassInstanceGetMember(pInstance, MEMBER(iSecondaryAmmoType));
 
-  @Entity_UpdateWeaponData(this, iId, iClip, iPrimaryAmmoType, iSecondaryAmmoType, true);
+  @Entity_UpdateWeaponData(this, iWeaponId, iClip, iPrimaryAmmoType, iSecondaryAmmoType, true);
 
   set_ent_data(this, "CBasePlayerWeapon", "m_iDefaultAmmo", ClassInstanceGetMember(pInstance, MEMBER(iDefaultAmmo)));
 
