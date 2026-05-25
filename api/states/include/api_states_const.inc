@@ -3,7 +3,7 @@
 #endif
 #define _api_states_const_included
 
-#define API_STATES_VERSION "1.0.0"
+#define API_STATES_VERSION "1.0.1"
 
 #define STATE_CONTEXT_MAX_NAME_LEN 64
 #define STATE_MAX_CONTEXTS 32

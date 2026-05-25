@@ -14,6 +14,9 @@
 #define LOG_FATAL_ERROR(%1,%0) log_error(AMX_ERR_NATIVE, LOG_PREFIX + " " + %1, %0)
 
 #define ERR_CONTEXT_NOT_REGISTERED "Context ^"%s^" is not registered"
+#define ERR_FUNCTION_NOT_FOUND "Function ^"%s^" not found in plugin ^"%s^"."
+
+#define ARG_STRREF(%1) %1, charsmax(%1)
 
 enum StateContext {
   StateContext_Id,
@@ -124,14 +127,14 @@ public plugin_natives() {
 /*--------------------------------[ Natives ]--------------------------------*/
 
 public Native_RegisterContext(const iPluginId, const iArgc) {
-  new szContext[STATE_CONTEXT_MAX_NAME_LEN]; get_string(1, szContext, charsmax(szContext));
+  new szContext[STATE_CONTEXT_MAX_NAME_LEN]; get_string(1, ARG_STRREF(szContext));
   new any:initialState = any:get_param(2);
 
   return StateContext_Register(szContext, initialState);
 }
 
 public Native_IsContextRegistered(const iPluginId, const iArgc) {
-  new szContext[STATE_CONTEXT_MAX_NAME_LEN]; get_string(1, szContext, charsmax(szContext));
+  new szContext[STATE_CONTEXT_MAX_NAME_LEN]; get_string(1, ARG_STRREF(szContext));
 
   new iContextId = StateContext_GetId(szContext);
   if (iContextId == -1) return false;
@@ -140,8 +143,8 @@ public Native_IsContextRegistered(const iPluginId, const iArgc) {
 }
 
 public Native_RegisterContextChangeGuard(const iPluginId, const iArgc) {
-  new szContext[STATE_CONTEXT_MAX_NAME_LEN]; get_string(1, szContext, charsmax(szContext));
-  new szFunction[STATE_CONTEXT_MAX_NAME_LEN]; get_string(2, szFunction, charsmax(szFunction));
+  new szContext[STATE_CONTEXT_MAX_NAME_LEN]; get_string(1, ARG_STRREF(szContext));
+  new szCallback[STATE_CONTEXT_MAX_NAME_LEN]; get_string(2, ARG_STRREF(szCallback));
 
   new iContextId = StateContext_GetId(szContext);
   if (iContextId == -1) {
@@ -149,12 +152,20 @@ public Native_RegisterContextChangeGuard(const iPluginId, const iArgc) {
     return -1;
   }
 
-  return StateContext_RegisterGuard(iContextId, get_func_pointer(szFunction, iPluginId));
+  new Function:fnCallback = get_func_pointer(szCallback, iPluginId);
+  if (fnCallback == Invalid_FunctionPointer) {
+    new szFilename[64];
+    get_plugin(iPluginId, ARG_STRREF(szFilename));
+    LOG_ERROR(ERR_FUNCTION_NOT_FOUND, szCallback, szFilename);
+    return -1;
+  }
+
+  return StateContext_RegisterGuard(iContextId, fnCallback);
 }
 
 public Native_RegisterContextChangeHook(const iPluginId, const iArgc) {
-  new szContext[STATE_CONTEXT_MAX_NAME_LEN]; get_string(1, szContext, charsmax(szContext));
-  new szFunction[STATE_CONTEXT_MAX_NAME_LEN]; get_string(2, szFunction, charsmax(szFunction));
+  new szContext[STATE_CONTEXT_MAX_NAME_LEN]; get_string(1, ARG_STRREF(szContext));
+  new szCallback[STATE_CONTEXT_MAX_NAME_LEN]; get_string(2, ARG_STRREF(szCallback));
 
   new iContextId = StateContext_GetId(szContext);
   if (iContextId == -1) {
@@ -162,13 +173,21 @@ public Native_RegisterContextChangeHook(const iPluginId, const iArgc) {
     return -1;
   }
 
-  return StateContext_RegisterHook(iContextId, StateHookType_Change, _, _, get_func_pointer(szFunction, iPluginId));
+  new Function:fnCallback = get_func_pointer(szCallback, iPluginId);
+  if (fnCallback == Invalid_FunctionPointer) {
+    new szFilename[64];
+    get_plugin(iPluginId, ARG_STRREF(szFilename));
+    LOG_ERROR(ERR_FUNCTION_NOT_FOUND, szCallback, szFilename);
+    return -1;
+  }
+
+  return StateContext_RegisterHook(iContextId, StateHookType_Change, _, _, fnCallback);
 }
 
 public Native_RegisterContextEnterHook(const iPluginId, const iArgc) {
-  new szContext[STATE_CONTEXT_MAX_NAME_LEN]; get_string(1, szContext, charsmax(szContext));
+  new szContext[STATE_CONTEXT_MAX_NAME_LEN]; get_string(1, ARG_STRREF(szContext));
   new any:toState = any:get_param(2);
-  new szFunction[STATE_CONTEXT_MAX_NAME_LEN]; get_string(3, szFunction, charsmax(szFunction));
+  new szCallback[STATE_CONTEXT_MAX_NAME_LEN]; get_string(3, ARG_STRREF(szCallback));
 
   new iContextId = StateContext_GetId(szContext);
   if (iContextId == -1) {
@@ -176,13 +195,21 @@ public Native_RegisterContextEnterHook(const iPluginId, const iArgc) {
     return -1;
   }
 
-  return StateContext_RegisterHook(iContextId, StateHookType_Enter, _, toState, get_func_pointer(szFunction, iPluginId));
+  new Function:fnCallback = get_func_pointer(szCallback, iPluginId);
+  if (fnCallback == Invalid_FunctionPointer) {
+    new szFilename[64];
+    get_plugin(iPluginId, ARG_STRREF(szFilename));
+    LOG_ERROR(ERR_FUNCTION_NOT_FOUND, szCallback, szFilename);
+    return -1;
+  }
+
+  return StateContext_RegisterHook(iContextId, StateHookType_Enter, _, toState, fnCallback);
 }
 
 public Native_RegisterContextExitHook(const iPluginId, const iArgc) {
-  new szContext[STATE_CONTEXT_MAX_NAME_LEN]; get_string(1, szContext, charsmax(szContext));
+  new szContext[STATE_CONTEXT_MAX_NAME_LEN]; get_string(1, ARG_STRREF(szContext));
   new any:fromState = any:get_param(2);
-  new szFunction[STATE_CONTEXT_MAX_NAME_LEN]; get_string(3, szFunction, charsmax(szFunction));
+  new szCallback[STATE_CONTEXT_MAX_NAME_LEN]; get_string(3, ARG_STRREF(szCallback));
 
   new iContextId = StateContext_GetId(szContext);
   if (iContextId == -1) {
@@ -190,14 +217,22 @@ public Native_RegisterContextExitHook(const iPluginId, const iArgc) {
     return -1;
   }
 
-  return StateContext_RegisterHook(iContextId, StateHookType_Exit, fromState, _, get_func_pointer(szFunction, iPluginId));
+  new Function:fnCallback = get_func_pointer(szCallback, iPluginId);
+  if (fnCallback == Invalid_FunctionPointer) {
+    new szFilename[64];
+    get_plugin(iPluginId, ARG_STRREF(szFilename));
+    LOG_ERROR(ERR_FUNCTION_NOT_FOUND, szCallback, szFilename);
+    return -1;
+  }
+
+  return StateContext_RegisterHook(iContextId, StateHookType_Exit, fromState, _, fnCallback);
 }
 
 public Native_RegisterContextTransitionHook(const iPluginId, const iArgc) {
-  new szContext[STATE_CONTEXT_MAX_NAME_LEN]; get_string(1, szContext, charsmax(szContext));
+  new szContext[STATE_CONTEXT_MAX_NAME_LEN]; get_string(1, ARG_STRREF(szContext));
   new any:fromState = any:get_param(2);
   new any:toState = any:get_param(3);
-  new szFunction[STATE_CONTEXT_MAX_NAME_LEN]; get_string(4, szFunction, charsmax(szFunction));
+  new szCallback[STATE_CONTEXT_MAX_NAME_LEN]; get_string(4, ARG_STRREF(szCallback));
 
   new iContextId = StateContext_GetId(szContext);
   if (iContextId == -1) {
@@ -205,12 +240,20 @@ public Native_RegisterContextTransitionHook(const iPluginId, const iArgc) {
     return -1;
   }
 
-  return StateContext_RegisterHook(iContextId, StateHookType_Transition, fromState, toState, get_func_pointer(szFunction, iPluginId));
+  new Function:fnCallback = get_func_pointer(szCallback, iPluginId);
+  if (fnCallback == Invalid_FunctionPointer) {
+    new szFilename[64];
+    get_plugin(iPluginId, ARG_STRREF(szFilename));
+    LOG_ERROR(ERR_FUNCTION_NOT_FOUND, szCallback, szFilename);
+    return -1;
+  }
+
+  return StateContext_RegisterHook(iContextId, StateHookType_Transition, fromState, toState, fnCallback);
 }
 
 public Native_RegisterContextResetHook(const iPluginId, const iArgc) {
-  new szContext[STATE_CONTEXT_MAX_NAME_LEN]; get_string(1, szContext, charsmax(szContext));
-  new szFunction[STATE_CONTEXT_MAX_NAME_LEN]; get_string(2, szFunction, charsmax(szFunction));
+  new szContext[STATE_CONTEXT_MAX_NAME_LEN]; get_string(1, ARG_STRREF(szContext));
+  new szCallback[STATE_CONTEXT_MAX_NAME_LEN]; get_string(2, ARG_STRREF(szCallback));
 
   new iContextId = StateContext_GetId(szContext);
   if (iContextId == -1) {
@@ -218,11 +261,19 @@ public Native_RegisterContextResetHook(const iPluginId, const iArgc) {
     return -1;
   }
 
-  return StateContext_RegisterHook(iContextId, StateHookType_Reset, _, _, get_func_pointer(szFunction, iPluginId));
+  new Function:fnCallback = get_func_pointer(szCallback, iPluginId);
+  if (fnCallback == Invalid_FunctionPointer) {
+    new szFilename[64];
+    get_plugin(iPluginId, ARG_STRREF(szFilename));
+    LOG_ERROR(ERR_FUNCTION_NOT_FOUND, szCallback, szFilename);
+    return -1;
+  }
+
+  return StateContext_RegisterHook(iContextId, StateHookType_Reset, _, _, fnCallback);
 }
 
 public Native_CreateManager(const iPluginId, const iArgc) {
-  new szContext[STATE_CONTEXT_MAX_NAME_LEN]; get_string(1, szContext, charsmax(szContext));
+  new szContext[STATE_CONTEXT_MAX_NAME_LEN]; get_string(1, ARG_STRREF(szContext));
   new any:userToken = any:get_param(2);
 
   new iContextId = StateContext_GetId(szContext);
