@@ -83,6 +83,7 @@ public plugin_precache() {
 > Always call `CW_CallBaseMethod()` with all method arguments to ensure the parent class executes its logic properly.
 
 **Common Members:**
+- `CW_Member_iId` — Unique weapon id (you can use `CSW_*` constants)
 - `CW_Member_iMaxClip` — Maximum clip size
 - `CW_Member_iPrimaryAmmoType` — Primary ammo type ID
 - `CW_Member_iMaxPrimaryAmmo` — Maximum primary ammo
