@@ -69,6 +69,7 @@ public plugin_precache() {
   CW_SetMember(this, CW_Member_iMaxClip, 17);
   CW_SetMember(this, CW_Member_iPrimaryAmmoType, 10);
   CW_SetMember(this, CW_Member_iMaxPrimaryAmmo, 120);
+  CW_SetMember(this, CW_Member_iId, 1);
   CW_SetMember(this, CW_Member_iSlot, 1);
   CW_SetMember(this, CW_Member_iPosition, 6);
   CW_SetMemberString(this, CW_Member_szModel, "models/w_9mmhandgun.mdl");
